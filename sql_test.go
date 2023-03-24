@@ -2,6 +2,7 @@ package godatabase
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"testing"
 	"time"
@@ -61,18 +62,33 @@ func TestQuerySQLComplex(t *testing.T) {
 
 	for rows.Next() {
 		var idcustomer int32
-		var name, email string
+		var name string
+		var email sql.NullString
 		var balance int32
 		var rating float64
-		var createdAt, birthDate time.Time
+		var createdAt time.Time
+		var birthDate sql.NullTime
 		var married bool
 
 		err := rows.Scan(&idcustomer, &name, &email, &balance, &rating, &createdAt, &birthDate, &married)
 		if err != nil {
 			panic(err)
 		}
-
-		fmt.Println("\nId: ", idcustomer, "\nName: ", name, "\nEmail: ", email, "\nBalance: ", balance, "\nRating: ", rating, "\nDate Created: ", createdAt, "\nBirth Date: ", birthDate, "\nMarried Status: ", married)
+		fmt.Println("Id:", idcustomer)
+		fmt.Println("Name:", name)
+		// to hide NULL value
+		if email.Valid {
+			fmt.Println("Email: ", email.String)
+		}
+		fmt.Println("Balance:", balance)
+		fmt.Println("Rating:", rating)
+		fmt.Println("Date Created:", createdAt)
+		// to hide NULL value
+		if birthDate.Valid {
+			fmt.Println("Birth Date: ", birthDate.Time)
+		}
+		fmt.Println("Married Status:", married)
+		// fmt.Println("\nId: ", idcustomer, "\nName: ", name, "\nEmail: ", email, "\nBalance: ", balance, "\nRating: ", rating, "\nDate Created: ", createdAt, "\nBirth Date: ", birthDate, "\nMarried Status: ", married)
 	}
 
 }
