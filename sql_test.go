@@ -151,3 +151,21 @@ func TestSqlInjectionSafe(t *testing.T) {
 		fmt.Println("Failed Login!")
 	}
 }
+
+// Query SQL with params using db.exec
+func TestExecSqlParams(t *testing.T) {
+	db := GetConnection()
+	defer db.Close()
+
+	ctx := context.Background()
+
+	username := "admin123"
+	password := "admin123"
+	script := "INSERT INTO user(username, password) VALUES(?, ?)"
+	_, err := db.ExecContext(ctx, script, username, password)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Success insert new user")
+}
