@@ -12,8 +12,11 @@ type commentRepositoryImpl struct {
 	DB *sql.DB
 }
 
+func NewCommentRepository(db *sql.DB) CommentRepository {
+	return &commentRepositoryImpl{DB: db}
+}
+
 func (repository *commentRepositoryImpl) Insert(ctx context.Context, comment entity.Comment) (entity.Comment, error) {
-	//TODO implement me
 	script := "INSERT INTO comments(email, comment) VALUES(?,?)"
 	result, err := repository.DB.ExecContext(ctx, script, comment.Email, comment.Comment)
 	if err != nil {
@@ -28,7 +31,6 @@ func (repository *commentRepositoryImpl) Insert(ctx context.Context, comment ent
 }
 
 func (repository *commentRepositoryImpl) FindById(ctx context.Context, id int32) (entity.Comment, error) {
-	//TODO implement me
 	script := "SELECT id, email, comment FROM comments WHERE id = ? LIMIT 1"
 	rows, err := repository.DB.QueryContext(ctx, script, id)
 	comment := entity.Comment{}
@@ -49,14 +51,16 @@ func (repository *commentRepositoryImpl) FindById(ctx context.Context, id int32)
 func (repository *commentRepositoryImpl) FindAll(ctx context.Context) ([]entity.Comment, error) {
 	script := "SELECT id, email, comment FROM comments"
 	rows, err := repository.DB.QueryContext(ctx, script)
+
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
+
 	var comments []entity.Comment
 	for rows.Next() {
 		comment := entity.Comment{}
-		rows.Scan(&comments, comment)
+		rows.Scan(&comment.Id, &comment.Email, &comment.Comment)
 		comments = append(comments, comment)
 	}
 	return comments, nil
